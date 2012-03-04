@@ -16,18 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Modified by Jared "LgZ-optical" Klopper
+
 package net.minestatus.minequery;
 
-import net.minestatus.minequery.util.Updater;
 import net.minestatus.minequery.net.QueryServer;
+
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,10 +71,6 @@ public final class Minequery extends JavaPlugin {
 	 */
 	private QueryServer server;
 
-	/**
-	 * The main updater instance.
-	 */
-	private Updater updater;
 
 	/**
 	 * The main updater scheduler.
@@ -147,16 +144,6 @@ public final class Minequery extends JavaPlugin {
 				log(Level.SEVERE, "Error starting server listener", ex);
 			}
 		}
-
-		// Updater mode
-		if (getConfiguration().getBoolean("updater.enabled", false)) {
-			log(Level.INFO, "Stopping Minequery updater");
-
-			// Schedule the updater.
-			updaterScheduler = Executors.newSingleThreadScheduledExecutor();
-			updaterScheduler.scheduleAtFixedRate(new Updater(), 0, 5, TimeUnit.SECONDS);
-
-		}
 	}
 
 	private void loadConfiguration() {
@@ -178,27 +165,17 @@ public final class Minequery extends JavaPlugin {
 				// Set up the default configuration.
 
 				// Details
-				getConfiguration().setProperty("details.server_name", "My Server");
+				getConfiguration().set("details.server_name", "My Server");
 
 				// Server mode
-				getConfiguration().setProperty("server.ip", "");
-				getConfiguration().setProperty("server.port", 25566);
-				getConfiguration().setProperty("server.enabled", true);
-
-				// Updater mode
-				getConfiguration().setProperty("updater.enabled", false);
-				getConfiguration().setProperty("updater.services.minestatus.key", "");
-				getConfiguration().setProperty("updater.services.minestatus.url", "");
-				getConfiguration().setProperty("updater.services.myserverlist.key", "");
-				getConfiguration().setProperty("updater.services.myserverlist.url", "");
-
-				getConfiguration().save();
+				getConfiguration().set("server.ip", "");
+				getConfiguration().set("server.port", 25566);
+				getConfiguration().set("server.enabled", true);
+				saveConfig();
 			}
 		} catch (IOException ex) {
 			log(Level.WARNING, "Failed to create plugin configuration file.");
 		}
-
-		getConfiguration().load();
 		serverIP = getServer().getIp();
 		serverPort = getServer().getPort();
 		minequeryIP = getConfiguration().getString("server.ip", serverIP);
@@ -280,5 +257,13 @@ public final class Minequery extends JavaPlugin {
 	public static Minequery getInstance() {
 		return instance;
 	}
-
+	
+	/**
+	 * Get the config file
+	 * 
+	 * @return The instance of configuration
+	 */
+	public FileConfiguration getConfiguration() {
+		return getConfig();
+	}
 }

@@ -45,15 +45,21 @@ public final class RequestHandler extends Thread {
 	 * The socket we are using to obtain a request.
 	 */
 	private final Socket socket;
-
+	
+	/**
+	 * The socket manager
+	 */
+	private final QueryServer server;
+	
 	/**
 	 * Creates a new <code>QueryServer</code> object.
 	 * 
 	 * @param socket
 	 *            The socket we are using to obtain a request
 	 */
-	public RequestHandler(Socket socket) {
+	public RequestHandler(Socket socket, QueryServer server) {
 		this.socket = socket;
+		this.server = server;
 	}
 
 	/**
@@ -65,7 +71,10 @@ public final class RequestHandler extends Thread {
 
 			// Read the request and handle it.
 			handleRequest(socket, reader.readLine());
-
+			
+			// Release the address
+			server.releaseSocket(socket);
+			
 			// Finally close the socket.
 			socket.close();
 		} catch (IOException ignored) {
@@ -103,9 +112,9 @@ public final class RequestHandler extends Thread {
 			resp.append("PLAYERLIST ").append(new JSONArray(data.get("playerList")).toString()).append("\n");
 			resp.append("SERVERNAME ").append(data.get("serverName")).append("\n");
 			resp.append("SERVERIP ").append(data.get("serverIP")).append("\n");
-			resp.append("EXTENDEDPLAYERLIST ").append(new JSONArray((List) data.get("extendedPlayerList")).toString()).append("\n");
-			resp.append("PLUGINS ").append(new JSONArray((List) data.get("plugins")).toString()).append("\n");
-			resp.append("VERSIONS ").append(new JSONObject((Map) data.get("versions")).toString()).append("\n");
+			resp.append("EXTENDEDPLAYERLIST ").append(new JSONArray((List<?>) data.get("extendedPlayerList")).toString()).append("\n");
+			resp.append("PLUGINS ").append(new JSONArray((List<?>) data.get("plugins")).toString()).append("\n");
+			resp.append("VERSIONS ").append(new JSONObject((Map<?, ?>) data.get("versions")).toString()).append("\n");
 
 			// Send the response.
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());

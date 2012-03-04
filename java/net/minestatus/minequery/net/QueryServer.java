@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -49,7 +52,13 @@ public final class QueryServer extends Thread {
 	 * The connection listener.
 	 */
 	private ServerSocket listener;
-
+	
+	/**
+	 * Synchronized collection of all active connection remote addresses
+	 */
+	private Set<String> activeConnectionAddresses;
+	
+	
 	/**
 	 * Creates a new <code>QueryServer</code> object.
 	 * 
@@ -61,6 +70,7 @@ public final class QueryServer extends Thread {
 	public QueryServer(String host, int port) {
 		this.host = host;
 		this.port = port;
+		this.activeConnectionAddresses = Collections.synchronizedSet(new HashSet<String>());
 	}
 
 	/**
@@ -89,13 +99,24 @@ public final class QueryServer extends Thread {
 			while (!listener.isClosed()) {
 				// Wait for and accept all incoming connections.
 				Socket socket = getListener().accept();
-
+				if (activeConnectionAddresses.contains(socket.getInetAddress().getHostAddress())) {
+					socket.close();
+				} else {
+					activeConnectionAddresses.add(socket.getInetAddress().getHostAddress());
+				}
 				// Create a new thread to handle the request.
-				(new Thread(new RequestHandler(socket))).start();
+				(new Thread(new RequestHandler(socket, this))).start();
 			}
 		} catch (IOException ignored) {}
 	}
 
+	/**
+	 * Releases the sockets address
+	 */
+	public void releaseSocket(Socket socket) {
+		activeConnectionAddresses.remove(socket.getInetAddress().getHostAddress());
+	}
+	
 	/**
 	 * Gets the <code>QueryServer</code> host.
 	 * 
@@ -122,5 +143,4 @@ public final class QueryServer extends Thread {
 	public ServerSocket getListener() {
 		return listener;
 	}
-
 }
