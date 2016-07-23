@@ -45,7 +45,7 @@ public class DataHelper {
 		items.put("serverName", minequery.getConfiguration().getString("details.server_name"));
 		items.put("serverIP", minequery.getServerIP());
 		items.put("serverPort", minequery.getServerPort());
-		items.put("playerCount", minequery.getServer().getOnlinePlayers().length);
+		items.put("playerCount", minequery.getServer().getOnlinePlayers().size());
 		items.put("maxPlayers", minequery.getServer().getMaxPlayers());
 		items.put("playerList", getPlayerList());
 		items.put("extendedPlayerList", getExtendedPlayerList());
@@ -61,9 +61,12 @@ public class DataHelper {
 	 * @return An array of players on the server.
 	 */
 	private static String[] getPlayerList() {
-		String[] playerList = new String[minequery.getServer().getOnlinePlayers().length];
-		for (int i = 0; i < minequery.getServer().getOnlinePlayers().length; i++) {
-			playerList[i] = minequery.getServer().getOnlinePlayers()[i].getName();
+		String[] playerList = new String[minequery.getServer().getOnlinePlayers().size()];
+		
+		int i = 0;
+		for (Player player : minequery.getServer().getOnlinePlayers()) {
+			playerList[i] = player.getName();
+			i++;
 		}
 
 		return playerList;
@@ -75,10 +78,9 @@ public class DataHelper {
 	 * @return A <code>List</code> of <code>Map</code>s of players along with their info.
 	 */
 	private static List<Map<String, Object>> getExtendedPlayerList() {
-		Player[] players = minequery.getServer().getOnlinePlayers();
 		List<Map<String, Object>> playerList = new ArrayList<Map<String, Object>>();
 
-		for (Player player : players) {
+		for (Player player : minequery.getServer().getOnlinePlayers()) {
 			Map<String, Object> playerMap = new HashMap<String, Object>();
 			playerMap.put("name", player.getName());
 			playerMap.put("displayName", player.getDisplayName());
