@@ -20,6 +20,7 @@
 
 package net.minestatus.minequery;
 
+import br.com.brunoxkk0.Hook;
 import net.minestatus.minequery.net.QueryServer;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -126,6 +127,17 @@ public final class Minequery extends JavaPlugin {
 		loadConfiguration();
 
 		log(Level.INFO, "Starting Minequery version " + getDescription().getVersion());
+
+		/*
+		brunoxkk0 code start
+		 */
+
+		//this gon' setup all the custom hooks
+		Hook.setup();
+
+		/*
+		brunoxkk0 cade finish
+		 */
 
 		// Server mode
 		if (getConfiguration().getBoolean("server.enabled", false)) {

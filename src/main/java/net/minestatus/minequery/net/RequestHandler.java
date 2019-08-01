@@ -18,6 +18,7 @@
 
 package net.minestatus.minequery.net;
 
+import br.com.brunoxkk0.Hook;
 import net.minestatus.minequery.Minequery;
 import net.minestatus.minequery.util.helper.DataHelper;
 import org.json.JSONArray;
@@ -99,6 +100,25 @@ public final class RequestHandler extends Thread {
 		if (request == null) {
 			return;
 		}
+
+		/*
+		brunoxkk0 code start
+
+		Implements a modular handler request...
+		 */
+		if(Hook.canHandle(request)){
+			//load data
+			String data = Hook.handle(request);
+
+			// Send the response.
+			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			out.writeBytes(data);
+		}
+
+		/*
+		brunoxkk0 code finish
+		 */
+
 
 		// Handle a standard Minequery request.
 		if (request.equalsIgnoreCase("QUERY")) {
