@@ -136,7 +136,7 @@ public final class Minequery extends JavaPlugin {
 		Hook.setup();
 
 		/*
-		brunoxkk0 cade finish
+		brunoxkk0 code finish
 		 */
 
 		// Server mode
